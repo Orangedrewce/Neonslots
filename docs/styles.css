@@ -1,0 +1,354 @@
+/* ==========================================================================
+   1. SETUP & CONFIGURATION
+   ========================================================================== */
+:root {
+    --neon-pink: #ff0080;
+    --neon-cyan: #00ffff;
+    --neon-purple: #8000ff;
+    --neon-green: #00ff41;
+    --neon-orange: #ff4000;
+    --neon-yellow: #ffff00;
+    --dark-bg: #0a0a0a;
+    --text-primary: #e0e0e0;
+    --font-primary: 'Orbitron', sans-serif;
+    --font-secondary: 'Rajdhani', sans-serif;
+    --surface-glass: rgba(0, 255, 255, 0.05);
+    --dark-glass: rgba(10, 15, 25, 0.5);
+}
+
+@keyframes neonPulse {
+    0%, 100% { text-shadow: 0 0 4px currentColor, 0 0 8px currentColor; filter: brightness(1); }
+    50% { text-shadow: 0 0 8px currentColor, 0 0 16px currentColor; filter: brightness(1.2); }
+}
+
+@keyframes glitch {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(2px, -2px); }
+    60% { transform: translate(-1px, 1px); }
+    80% { transform: translate(1px, -1px); }
+}
+
+@keyframes winPulse {
+    0%, 100% { transform: scale(1); filter: brightness(1.2); }
+    50% { transform: scale(1.2); filter: brightness(1.8); text-shadow: 0 0 25px currentColor; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ==========================================================================
+   2. BASE & LAYOUT
+   ========================================================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: var(--font-secondary);
+    background-color: var(--dark-bg);
+    background-image:
+        linear-gradient(rgba(0, 255, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 35px 35px;
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+main.game-wrapper {
+    width: 100%;
+    max-width: 700px;
+    margin: 1rem auto;
+    background: var(--surface-glass);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 16px;
+    padding: clamp(1rem, 5vw, 2rem);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.15), inset 0 0 20px rgba(128, 0, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ==========================================================================
+   3. COMPONENT STYLES
+   ========================================================================== */
+
+/* Header */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+    padding-bottom: 1rem;
+}
+
+.game-title {
+    font-family: var(--font-primary);
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    font-weight: 900;
+    color: var(--neon-cyan);
+    letter-spacing: 0.3rem;
+    text-transform: uppercase;
+    animation: neonPulse 2s ease-in-out infinite;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.icon-button {
+    background: transparent;
+    border: 2px solid var(--neon-purple);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(128, 0, 255, 0.3);
+    flex-shrink: 0;
+}
+.icon-button:hover {
+    background: var(--neon-purple);
+    color: var(--dark-bg);
+    transform: scale(1.1);
+}
+.icon-button svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+/* Game Area */
+.game-area {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+@media (min-width: 600px) {
+    .game-area {
+        grid-template-columns: 3fr 1fr;
+    }
+}
+
+/* Slot Machine */
+.slot-machine {
+    background: #111;
+    border: 3px solid var(--neon-cyan);
+    border-radius: 16px;
+    padding: 1rem;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.7), 0 0 30px rgba(0, 255, 255, 0.3);
+    position: relative;
+}
+
+.message-display {
+    background: var(--dark-glass);
+    border: 1px solid var(--neon-purple);
+    border-radius: 12px;
+    padding: 0.8rem 1.2rem;
+    text-align: center;
+    font-family: var(--font-primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 10px var(--neon-yellow);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.message-display.win { color: var(--neon-green); animation: glitch 0.4s; }
+.message-display.lose { color: var(--neon-pink); animation: glitch 0.4s; }
+
+.reels {
+    display: flex;
+    height: 300px;
+    overflow: hidden;
+}
+
+.reel {
+    width: 33.33%;
+    height: 100%;
+    transition: transform 4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.reel:not(:last-child) {
+    border-right: 2px solid rgba(0, 255, 255, 0.4);
+}
+
+.symbol {
+    height: 100px;
+    font-size: clamp(45px, 10vw, 60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 0 15px currentColor;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+.symbol.winning {
+    /* Run the 1-second animation 3 times instead of infinitely */
+    animation: winPulse 1s ease-in-out 3;
+}
+
+/* Status Panel */
+.status-panel {
+    background: var(--dark-glass);
+    border: 1px solid var(--neon-purple);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+}
+.status-item {
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: var(--neon-cyan);
+    text-align: center;
+}
+.status-item span {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--neon-yellow);
+    text-shadow: 0 0 15px var(--neon-yellow);
+    margin-top: 0.5rem;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    border-top: 1px solid rgba(0, 255, 255, 0.2);
+    padding-top: 1rem;
+}
+.bet-controls, .spin-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.control-button {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-radius: 30px;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 3px solid;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+}
+.control-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(80%);
+    transform: translateY(0);
+}
+
+#bet-down, #bet-up {
+    border-color: var(--neon-orange);
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    font-size: 1.5rem;
+}
+#bet-down:hover:not(:disabled), #bet-up:hover:not(:disabled) {
+    background-color: var(--neon-orange);
+    color: var(--dark-bg);
+    box-shadow: 0 0 20px var(--neon-orange);
+}
+
+#spin { border-color: var(--neon-pink); }
+#spin:hover:not(:disabled) { background-color: var(--neon-pink); color: var(--dark-bg); box-shadow: 0 0 25px var(--neon-pink); }
+
+#auto { border-color: var(--neon-cyan); }
+#auto.active, #auto:hover:not(:disabled) { background-color: var(--neon-cyan); color: var(--dark-bg); box-shadow: 0 0 25px var(--neon-cyan); }
+
+#restart { border-color: var(--neon-green); }
+#restart:hover:not(:disabled) { background-color: var(--neon-green); color: var(--dark-bg); box-shadow: 0 0 25px var(--neon-green); }
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+.modal-overlay.hidden {
+    display: none;
+}
+.modal-content {
+    background: var(--dark-bg);
+    border: 2px solid var(--neon-purple);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 0 40px rgba(128, 0, 255, 0.5);
+}
+.modal-close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 2.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+.modal-close-button:hover {
+    color: var(--neon-pink);
+}
+.modal-title {
+    font-family: var(--font-primary);
+    color: var(--neon-cyan);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+}
+.paytable, .game-stats {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.paytable-item, .stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--neon-cyan);
+}
+.stat-item .value { font-weight: bold; color: var(--neon-yellow); }
+.paytable-item .symbol-combo { font-size: 1.5rem; }
+.paytable-item .payout-value { font-weight: bold; font-size: 1.2rem; color: var(--neon-yellow); }
