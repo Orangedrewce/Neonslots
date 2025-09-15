@@ -137,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
             this.dom.spinButton.disabled = true;
             this.dom.betUpButton.disabled = true;
             this.dom.betDownButton.disabled = true;
-            this.dom.autoSpinButton.disabled = true;
             this.dom.messageDisplay.textContent = 'SPINNING...';
             this.dom.messageDisplay.className = 'message-display';
 
