@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Neon Slots</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+</head>
+<body>
+    <main class="game-wrapper">
+        <header class="game-header">
+            <button id="stats-toggle" class="icon-button" aria-label="Show stats and paytable">
+                <svg viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"></path></svg>
+            </button>
+            <h1 class="game-title">NEON SLOTS</h1>
+            <button id="sound-toggle" class="icon-button" aria-label="Toggle sound">
+                <svg id="sound-on" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>
+                <svg id="sound-off" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"></path></svg>
+            </button>
+        </header>
+
+        <section class="game-area">
+            <div class="slot-machine">
+                <div class="reels">
+                    <div class="reel" id="reel-0"></div>
+                    <div class="reel" id="reel-1"></div>
+                    <div class="reel" id="reel-2"></div>
+                </div>
+            </div>
+
+            <aside class="status-panel">
+                <p class="status-item">Credits: <span id="credits">100</span></p>
+                <p class="status-item">Bet: <span id="bet">5</span></p>
+            </aside>
+        </section>
+
+        <div class="message-display" id="message">Press Spin to Start</div>
+
+        <footer class="controls">
+            <div class="bet-controls">
+                <button id="bet-down" class="control-button">-</button>
+                <button id="bet-up" class="control-button">+</button>
+            </div>
+            <div class="spin-controls">
+                <button id="spin" class="control-button">SPIN</button>
+                <button id="auto" class="control-button">AUTO</button>
+                <button id="restart" class="control-button" style="display:none;">RESTART</button>
+            </div>
+        </footer>
+    </main>
+
+    <div id="stats-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="modal-close" class="modal-close-button">&times;</button>
+            <h2 class="modal-title">Paytable & Stats</h2>
+            
+            <div class="paytable">
+                <div class="paytable-item"><span class="symbol-combo">🍒 🍒 🍒</span> <span class="payout-value">10x</span></div>
+                <div class="paytable-item"><span class="symbol-combo">🍋 🍋 🍋</span> <span class="payout-value">15x</span></div>
+                <div class="paytable-item"><span class="symbol-combo">🍊 🍊 🍊</span> <span class="payout-value">20x</span></div>
+                <div class="paytable-item"><span class="symbol-combo">🍉 🍉 🍉</span> <span class="payout-value">25x</span></div>
+                <div class="paytable-item"><span class="symbol-combo">🔔 🔔 🔔</span> <span class="payout-value">50x</span></div>
+                <div class="paytable-item"><span class="symbol-combo">⭐ ⭐ ⭐</span> <span class="payout-value">100x</span></div>
+                <div class="paytable-item"><span class="symbol-combo">7️⃣ 7️⃣ 7️⃣</span> <span class="payout-value">500x</span></div>
+                <div class="paytable-item"><span class="symbol-combo">🍒 🍒 X</span> <span class="payout-value">2x</span></div>
+            </div>
+
+            <div class="game-stats">
+                <div class="stat-item"><span>Total Spins:</span> <span id="total-spins" class="value">0</span></div>
+                <div class="stat-item"><span>Wins:</span> <span id="total-wins" class="value">0</span></div>
+                <div class="stat-item"><span>Win Rate:</span> <span id="win-rate" class="value">0%</span></div>
+                <div class="stat-item"><span>Biggest Win:</span> <span id="biggest-win" class="value">0</span></div>
+                <div class="stat-item"><span>Total Won:</span> <span id="total-won" class="value">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
