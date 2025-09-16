@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ['🍒','⭐','🔔','🍉','🍊','🍋','7️⃣','⭐','🔔','🍉','🍊','🍋','🔔','7️⃣']
             ],
             PAYOUT_TABLE: { '🍒': { 3: 10, 2: 2 }, '🍋': { 3: 15 }, '🍊': { 3: 20 }, '🍉': { 3: 25 }, '🔔': { 3: 50 }, '⭐': { 3: 100 }, '7️⃣': { 3: 500 } },
-            BET_AMOUNTS: [1, 5, 10, 25, 50],
+            BET_AMOUNTS: [1, 5, 10, 25, 50, 100, 500, 1000, 5000,],
             GameState: { IDLE: 'IDLE', SPINNING: 'SPINNING', EVALUATING: 'EVALUATING', PAYOUT: 'PAYOUT', NO_WIN: 'NO_WIN', GAME_OVER: 'GAME_OVER' }
         },
         // --- Game State ---
