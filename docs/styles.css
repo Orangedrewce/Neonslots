@@ -44,25 +44,33 @@
    ========================================================================== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+#background-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    background-color: var(--dark-bg);
+    display: block;
+}
+
 body {
     font-family: var(--font-secondary);
-    background-color: var(--dark-bg);
-    background-image:
-        linear-gradient(rgba(0, 255, 255, 0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
-    background-size: 35px 35px;
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
 main.game-wrapper {
     width: 100%;
     max-width: 700px;
     margin: 1rem auto;
-    background: var(--surface-glass);
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--neon-cyan);
     border-radius: 16px;
     padding: clamp(1rem, 5vw, 2rem);
@@ -70,6 +78,8 @@ main.game-wrapper {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    position: relative;
+    z-index: 10;
 }
 
 /* ==========================================================================
