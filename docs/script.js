@@ -106,39 +106,52 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             
             play: function(sound, note, duration = '8n', time) {
-                if (!game.state.isAudioReady || game.state.isMuted) return;
+                if (!game.state.isAudioReady || game.state.isMuted) {
+                    if (!game.state.isAudioReady) console.log(`[AUDIO] Skipped '${sound}' - audio not ready`);
+                    if (game.state.isMuted) console.log(`[AUDIO] Skipped '${sound}' - muted`);
+                    return;
+                }
                 try {
                     if (this.sounds[sound]) {
                         this.sounds[sound].triggerAttackRelease(note, duration, time);
+                        console.log(`[AUDIO] Playing '${sound}' at ${note} for ${duration}`);
                     }
                 } catch (error) {
-                    console.error("Audio playback error:", error);
+                    console.error("[AUDIO ERROR]", error);
                 }
             },
             
             playWin: function() {
-                if (!game.state.isAudioReady || game.state.isMuted) return;
+                if (!game.state.isAudioReady || game.state.isMuted) {
+                    console.log(`[AUDIO] Skipped 'win celebration' - ${!game.state.isAudioReady ? 'not ready' : 'muted'}`);
+                    return;
+                }
                 try {
                     if (this.sounds.win) {
                         const now = Tone.now();
                         this.sounds.win.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
                         this.sounds.win.triggerAttackRelease(["E4", "G4", "B4"], "8n", now + 0.2);
                         this.sounds.win.triggerAttackRelease(["G4", "B4", "D5"], "8n", now + 0.4);
+                        console.log(`[AUDIO] Playing 'win celebration' chord progression`);
                     }
                 } catch (error) {
-                    console.error("Win audio playback error:", error);
+                    console.error("[AUDIO ERROR] Win sound:", error);
                 }
             },
             
             playSpin: function() {
-                if (!game.state.isAudioReady || game.state.isMuted) return;
+                if (!game.state.isAudioReady || game.state.isMuted) {
+                    console.log(`[AUDIO] Skipped 'spin start' - ${!game.state.isAudioReady ? 'not ready' : 'muted'}`);
+                    return;
+                }
                 try {
                     if (this.sounds.spinStart) {
                         const now = Tone.now();
                         this.sounds.spinStart.triggerAttackRelease(["C4", "E4", "G4", "C5"], "16n", now);
+                        console.log(`[AUDIO] Playing 'spin start' chord`);
                     }
                 } catch (error) {
-                    console.error("Spin audio playback error:", error);
+                    console.error("[AUDIO ERROR] Spin sound:", error);
                 }
             }
         },
@@ -237,7 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Clear any pending animations from previous state
             this.clearAllTimeouts();
             
-            console.log(`State transition: ${this.state.currentState} -> ${newState}`);
+            console.log(`%c[STATE] ${this.state.currentState} -> ${newState}`, 'color: #00ffff; font-weight: bold');
+            console.log(`[INFO] Credits: ${this.state.credits} | Bet: ${this.state.currentBet} | Auto-spin: ${this.state.isAutoSpinning ? 'ON' : 'OFF'} | Sound: ${this.state.isMuted ? 'MUTED' : 'ON'}`);
             this.state.currentState = newState;
             
             // Execute state-specific logic
@@ -313,7 +327,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Increment spin counter and deduct bet
             this.state.totalSpins++;
+            const previousCredits = this.state.credits;
             this.state.credits = Math.max(0, this.state.credits - this.state.currentBet);
+            console.log(`%c[SPIN #${this.state.totalSpins}] Placed bet: ${this.state.currentBet} | Credits: ${previousCredits} -> ${this.state.credits}`, 'color: #ff0080; font-weight: bold');
             this.updateDisplays();
             
             // Disable controls during spin
@@ -333,6 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
             this.state.finalIndices = this.config.REEL_STRIPS.map(strip => 
                 Math.floor(Math.random() * strip.length)
             );
+            
+            const resultSymbols = this.state.finalIndices.map((idx, reelIdx) => this.config.REEL_STRIPS[reelIdx][idx]);
+            console.log(`[REELS] Result: ${resultSymbols.join(' | ')}`);
             
             // Calculate spin durations with stagger
             const durations = this.dom.reels.map((_, i) => 
@@ -449,8 +468,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     winnings: totalWinnings, 
                     winningPositions: [...new Set(winningPositions.map(JSON.stringify))].map(JSON.parse) 
                 };
+                console.log(`%c[WIN!] Amount: ${totalWinnings} (${totalWinnings / this.state.currentBet}x bet)`, 'color: #00ff41; font-weight: bold; font-size: 14px');
+                console.log(`[WIN] Winning positions: ${JSON.stringify(this.state.winInfo.winningPositions)}`);
                 this.setState(this.config.GameState.WIN_CELEBRATION);
             } else {
+                console.log(`%c[NO WIN] Lost: ${this.state.currentBet}`, 'color: #ff4000');
                 this.setState(this.config.GameState.NO_WIN_DISPLAY);
             }
         },
@@ -475,12 +497,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const { winnings, winningPositions } = this.state.winInfo;
             
             // Update game state
+            const previousCredits = this.state.credits;
             this.state.credits += winnings;
             this.state.wins++;
             this.state.totalWinnings += winnings;
             if (winnings > this.state.biggestWin) {
                 this.state.biggestWin = winnings;
+                console.log(`%c[NEW RECORD!] Biggest win: ${winnings}`, 'color: #ffff00; font-weight: bold; font-size: 16px');
             }
+            console.log(`[CREDITS] ${previousCredits} + ${winnings} = ${this.state.credits} | Total won: ${this.state.totalWinnings}`);
             
             // Update UI
             this.dom.messageDisplay.textContent = `WIN! +${winnings}`;
@@ -527,6 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
         handleGameOverState: function() {
             this.dom.messageDisplay.textContent = 'GAME OVER';
             this.dom.messageDisplay.className = 'message-display lose';
+            console.log(`%c[GAME OVER] Final stats - Spins: ${this.state.totalSpins} | Wins: ${this.state.wins} | Total won: ${this.state.totalWinnings} | Biggest win: ${this.state.biggestWin}`, 'color: #ff0080; font-weight: bold; font-size: 14px');
             this.audioManager.play('gameOver', 'C2', '1s');
             
             // Stop auto-spin if active
@@ -636,10 +662,12 @@ document.addEventListener('DOMContentLoaded', () => {
             this.audioManager.play('click', 'C4', '16n');
             if (this.state.isAutoSpinning) this.toggleAutoSpin();
             
+            const oldBet = this.state.currentBet;
             const newIndex = this.state.betIndex + direction;
             if (newIndex >= 0 && newIndex < this.config.BET_AMOUNTS.length) {
                 this.state.betIndex = newIndex;
                 this.state.currentBet = this.config.BET_AMOUNTS[this.state.betIndex];
+                console.log(`[BET] Changed: ${oldBet} -> ${this.state.currentBet}`);
                 this.updateDisplays();
             }
         },
@@ -647,6 +675,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleAutoSpin: function() {
             this.initAudio();
             this.state.isAutoSpinning = !this.state.isAutoSpinning;
+            console.log(`%c[AUTO-SPIN] ${this.state.isAutoSpinning ? 'ENABLED' : 'DISABLED'}`, `color: ${this.state.isAutoSpinning ? '#00ffff' : '#ff4000'}; font-weight: bold`);
             this.audioManager.play('click', this.state.isAutoSpinning ? 'E4' : 'A3', '16n');
             
             this.dom.autoSpinButton.textContent = this.state.isAutoSpinning ? 'STOP' : 'AUTO';
@@ -661,6 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleMute: function() {
             this.initAudio();
             this.state.isMuted = !this.state.isMuted;
+            console.log(`%c[SOUND] ${this.state.isMuted ? 'MUTED' : 'UNMUTED'}`, `color: ${this.state.isMuted ? '#808080' : '#00ff41'}; font-weight: bold`);
             this.dom.soundOnIcon.style.display = this.state.isMuted ? 'none' : 'block';
             this.dom.soundOffIcon.style.display = this.state.isMuted ? 'block' : 'none';
             this.audioManager.play('click', this.state.isMuted ? 'A3' : 'E4', '16n');
@@ -694,6 +724,8 @@ document.addEventListener('DOMContentLoaded', () => {
         restartGame: function() {
             this.initAudio();
             
+            console.log(`%c[RESTART] Game restarting...`, 'color: #00ff41; font-weight: bold');
+            
             // Clear all animations and timeouts
             this.clearAllTimeouts();
             this.clearWinningVisuals();
@@ -708,6 +740,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.state.biggestWin = 0;
             this.state.reelsSpinning = 0;
             
+            console.log(`[RESTART] Stats reset | Credits: 100 | Bet: 5`);
             this.audioManager.play('click', 'G4', '8n');
             
             // Stop auto-spin if active
